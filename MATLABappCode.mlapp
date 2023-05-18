@@ -1,0 +1,244 @@
+classdef Project8th < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                        matlab.ui.Figure
+        CentralUniversityofKarnatakaElectricityBillGenerationAppLabel  matlab.ui.control.Label
+        ConnectedLoadkWLabel            matlab.ui.control.Label
+        ConnectedLoadkWEditField        matlab.ui.control.NumericEditField
+        ElectricityDutyTaxEditField     matlab.ui.control.NumericEditField
+        ElectricityDutyTaxLabel         matlab.ui.control.Label
+        ResetButton                     matlab.ui.control.Button
+        NetAmountRsEditField            matlab.ui.control.NumericEditField
+        NetAmountRsEditFieldLabel       matlab.ui.control.Label
+        ETaxRsEditField                 matlab.ui.control.NumericEditField
+        ETaxRsEditFieldLabel            matlab.ui.control.Label
+        SubsidyCostEditField            matlab.ui.control.NumericEditField
+        SubsidyCostEditFieldLabel       matlab.ui.control.Label
+        FixedChargesRsEditField         matlab.ui.control.NumericEditField
+        FixedChargesLabel               matlab.ui.control.Label
+        TotalCurrentChargesRsEditField  matlab.ui.control.NumericEditField
+        TotalCurrentChargesRsEditFieldLabel  matlab.ui.control.Label
+        NoofUnitsConsumedEditField      matlab.ui.control.NumericEditField
+        NoofUnitsConsumedEditFieldLabel  matlab.ui.control.Label
+        TypeofConsumerDropDown          matlab.ui.control.DropDown
+        TypeofConsumerLabel             matlab.ui.control.Label
+        CalculateButton                 matlab.ui.control.Button
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Value changed function: ElectricityDutyTaxEditField
+        function ElectricityDutyTaxEditFieldValueChanged(app, event)
+            value = app.ElectricityDutyTaxEditField.Value;
+            
+        end
+
+        % Button pushed function: CalculateButton
+        function CalculateButtonPushed(app, event)
+            if app.NoofUnitsConsumedEditField.Value%200!=0
+                a200u = (app.NoofUnitsConsumedEditField.Value -200)*8;
+                b200u = (200*6.75);
+            else
+                a200u = 0;
+                b200u = (app.NoofUnitsConsumedEditField.Value)*6.75;
+            end
+            app.TotalCurrentChargesRsEditField.Value = a200u + b200u;
+            if app.ConnectedLoadkWEditField.Value < 1
+                b50k = 135;
+                a50k = 0;
+            elseif app.ConnectedLoadkWEditField.Value%50!=0
+                b50k = (50*110);
+                a50k = (app.ConnectedLoadkWEditField.Value-50)*165;
+            else
+                b50k = (app.ConnectedLoadkWEditField.Value)*110;
+                a50k = 0;
+            end
+            app.FixedChargesRsEditField.Value = b50k + a50k;
+            app.ETaxRsEditField.Value = app.ElectricityDutyTaxEditField.Value*app.TotalCurrentChargesRsEditField.Value*0.01;
+            app.SubsidyCostEditField.Value = 0;
+            app.NetAmountRsEditField.Value = app.ETaxRsEditField.Value + b50k + a50k + a200u +b200u;
+        end
+
+        % Button pushed function: ResetButton
+        function ResetButtonPushed(app, event)
+            app.NoofUnitsConsumedEditField.Value = 0;
+            app.ConnectedLoadkWEditField.Value = 14420;
+            app.ElectricityDutyTaxEditField.Value = 0;
+            app.TotalCurrentChargesRsEditField.Value = 0;
+            app.SubsidyCostEditField.Value=0;
+            app.FixedChargesRsEditField.Value = 0;
+            app.ETaxRsEditField.Value=0;
+            app.NetAmountRsEditField.Value = 0;
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 482 468];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create CalculateButton
+            app.CalculateButton = uibutton(app.UIFigure, 'push');
+            app.CalculateButton.ButtonPushedFcn = createCallbackFcn(app, @CalculateButtonPushed, true);
+            app.CalculateButton.Position = [196 219 100 23];
+            app.CalculateButton.Text = 'Calculate';
+
+            % Create TypeofConsumerLabel
+            app.TypeofConsumerLabel = uilabel(app.UIFigure);
+            app.TypeofConsumerLabel.HorizontalAlignment = 'right';
+            app.TypeofConsumerLabel.Position = [30 315 103 30];
+            app.TypeofConsumerLabel.Text = 'Type of Consumer';
+
+            % Create TypeofConsumerDropDown
+            app.TypeofConsumerDropDown = uidropdown(app.UIFigure);
+            app.TypeofConsumerDropDown.Items = {'LT 2(b)(ii)'};
+            app.TypeofConsumerDropDown.Position = [141 319 117 22];
+            app.TypeofConsumerDropDown.Value = 'LT 2(b)(ii)';
+
+            % Create NoofUnitsConsumedEditFieldLabel
+            app.NoofUnitsConsumedEditFieldLabel = uilabel(app.UIFigure);
+            app.NoofUnitsConsumedEditFieldLabel.HorizontalAlignment = 'right';
+            app.NoofUnitsConsumedEditFieldLabel.Position = [283 311 64 30];
+            app.NoofUnitsConsumedEditFieldLabel.Text = {'No of Units'; 'Consumed'};
+
+            % Create NoofUnitsConsumedEditField
+            app.NoofUnitsConsumedEditField = uieditfield(app.UIFigure, 'numeric');
+            app.NoofUnitsConsumedEditField.ValueDisplayFormat = '%.3f';
+            app.NoofUnitsConsumedEditField.Position = [362 319 100 22];
+
+            % Create TotalCurrentChargesRsEditFieldLabel
+            app.TotalCurrentChargesRsEditFieldLabel = uilabel(app.UIFigure);
+            app.TotalCurrentChargesRsEditFieldLabel.HorizontalAlignment = 'right';
+            app.TotalCurrentChargesRsEditFieldLabel.Position = [42 164 76 30];
+            app.TotalCurrentChargesRsEditFieldLabel.Text = {'Total Current'; 'Charges (Rs)'};
+
+            % Create TotalCurrentChargesRsEditField
+            app.TotalCurrentChargesRsEditField = uieditfield(app.UIFigure, 'numeric');
+            app.TotalCurrentChargesRsEditField.ValueDisplayFormat = '%.3f';
+            app.TotalCurrentChargesRsEditField.Editable = 'off';
+            app.TotalCurrentChargesRsEditField.Position = [133 172 100 22];
+
+            % Create FixedChargesLabel
+            app.FixedChargesLabel = uilabel(app.UIFigure);
+            app.FixedChargesLabel.HorizontalAlignment = 'right';
+            app.FixedChargesLabel.Position = [9 131 109 22];
+            app.FixedChargesLabel.Text = 'Fixed Charges (Rs)';
+
+            % Create FixedChargesRsEditField
+            app.FixedChargesRsEditField = uieditfield(app.UIFigure, 'numeric');
+            app.FixedChargesRsEditField.ValueDisplayFormat = '%.3f';
+            app.FixedChargesRsEditField.Editable = 'off';
+            app.FixedChargesRsEditField.Position = [133 131 100 22];
+
+            % Create SubsidyCostEditFieldLabel
+            app.SubsidyCostEditFieldLabel = uilabel(app.UIFigure);
+            app.SubsidyCostEditFieldLabel.HorizontalAlignment = 'right';
+            app.SubsidyCostEditFieldLabel.Position = [255 172 76 22];
+            app.SubsidyCostEditFieldLabel.Text = 'Subsidy Cost';
+
+            % Create SubsidyCostEditField
+            app.SubsidyCostEditField = uieditfield(app.UIFigure, 'numeric');
+            app.SubsidyCostEditField.ValueDisplayFormat = '%.3f';
+            app.SubsidyCostEditField.Editable = 'off';
+            app.SubsidyCostEditField.Position = [346 172 100 22];
+
+            % Create ETaxRsEditFieldLabel
+            app.ETaxRsEditFieldLabel = uilabel(app.UIFigure);
+            app.ETaxRsEditFieldLabel.HorizontalAlignment = 'right';
+            app.ETaxRsEditFieldLabel.Position = [270 131 61 22];
+            app.ETaxRsEditFieldLabel.Text = 'E Tax (Rs)';
+
+            % Create ETaxRsEditField
+            app.ETaxRsEditField = uieditfield(app.UIFigure, 'numeric');
+            app.ETaxRsEditField.ValueDisplayFormat = '%.3f';
+            app.ETaxRsEditField.Editable = 'off';
+            app.ETaxRsEditField.Position = [346 131 100 22];
+
+            % Create NetAmountRsEditFieldLabel
+            app.NetAmountRsEditFieldLabel = uilabel(app.UIFigure);
+            app.NetAmountRsEditFieldLabel.HorizontalAlignment = 'right';
+            app.NetAmountRsEditFieldLabel.Position = [133 75 94 22];
+            app.NetAmountRsEditFieldLabel.Text = 'Net Amount (Rs)';
+
+            % Create NetAmountRsEditField
+            app.NetAmountRsEditField = uieditfield(app.UIFigure, 'numeric');
+            app.NetAmountRsEditField.ValueDisplayFormat = '%.3f';
+            app.NetAmountRsEditField.Editable = 'off';
+            app.NetAmountRsEditField.Position = [242 75 100 22];
+
+            % Create ResetButton
+            app.ResetButton = uibutton(app.UIFigure, 'push');
+            app.ResetButton.ButtonPushedFcn = createCallbackFcn(app, @ResetButtonPushed, true);
+            app.ResetButton.Position = [196 31 100 23];
+            app.ResetButton.Text = 'Reset';
+
+            % Create ElectricityDutyTaxLabel
+            app.ElectricityDutyTaxLabel = uilabel(app.UIFigure);
+            app.ElectricityDutyTaxLabel.HorizontalAlignment = 'right';
+            app.ElectricityDutyTaxLabel.Position = [38 261 84 30];
+            app.ElectricityDutyTaxLabel.Text = {'Electricity Duty'; '/Tax  (%)'};
+
+            % Create ElectricityDutyTaxEditField
+            app.ElectricityDutyTaxEditField = uieditfield(app.UIFigure, 'numeric');
+            app.ElectricityDutyTaxEditField.ValueDisplayFormat = '%.3f';
+            app.ElectricityDutyTaxEditField.ValueChangedFcn = createCallbackFcn(app, @ElectricityDutyTaxEditFieldValueChanged, true);
+            app.ElectricityDutyTaxEditField.Position = [137 269 100 22];
+
+            % Create ConnectedLoadkWEditField
+            app.ConnectedLoadkWEditField = uieditfield(app.UIFigure, 'numeric');
+            app.ConnectedLoadkWEditField.ValueDisplayFormat = '%.0f';
+            app.ConnectedLoadkWEditField.Position = [360 269 100 22];
+            app.ConnectedLoadkWEditField.Value = 1021692;
+
+            % Create ConnectedLoadkWLabel
+            app.ConnectedLoadkWLabel = uilabel(app.UIFigure);
+            app.ConnectedLoadkWLabel.HorizontalAlignment = 'right';
+            app.ConnectedLoadkWLabel.Position = [257 261 93 30];
+            app.ConnectedLoadkWLabel.Text = {'Connected Load'; '(kW)'};
+
+            % Create CentralUniversityofKarnatakaElectricityBillGenerationAppLabel
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel = uilabel(app.UIFigure);
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel.HorizontalAlignment = 'center';
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel.FontSize = 25;
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel.FontWeight = 'bold';
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel.Position = [51 374 390 62];
+            app.CentralUniversityofKarnatakaElectricityBillGenerationAppLabel.Text = {'Central University of Karnataka,'; 'Electricity Bill Generation App'};
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = Project8th
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
